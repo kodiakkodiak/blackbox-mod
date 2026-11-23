@@ -81,12 +81,31 @@ heap allocation and a large stack buffer. At 48 kHz, Phones L is 1500 Hz and R i
 3000 Hz, peak 0.03125 (about -30.1 dBFS). Stock blocks are multiples of 32;
 nonmultiple blocks reset tone phase at the next block and can click.
 
-The trace reaches the packed output buffers handed to the stock audio transport.
-DMA/SAI register initialization, converter model/slot configuration, PCB wiring,
-and analog headphone amplification have **not** been independently established.
-The retained stock transport is the candidate path to the converter; only the
-physical test can prove these fields independently reach PHONES. This diagnostic
-also tests whether the retained transport overwrites or remixes them later.
+The transport trace has now been extended beyond the packed buffers:
+
+- Initialization `0x08041054` allocates a 0x800-byte receive buffer and two
+  0x1000-byte transmit buffers, held at object offsets `0x440`, `0x448`, `0x44c`.
+  `0x080410b4` registers those same addresses with the audio task. The task selects
+  alternating halves; the three-bus packer writes into the `0x448` buffer and the
+  Out2 packer into `0x44c`.
+- Initialization assigns peripheral instances `0x40015804` (SAI1 block A),
+  `0x40015824` (SAI1 block B), and `0x40015c04` (SAI2 block A). Address names
+  were checked against [ST's STM32H743 device header](https://github.com/STMicroelectronics/cmsis-device-h7/blob/master/Include/stm32h743xx.h).
+- Stream start `0x080413ac` passes the receive buffer to `0x0807fb44`, then
+  passes `0x44c` to transmit routine `0x0807fa3c` with SAI2 A, and `0x448` to
+  that same routine with SAI1 A. Both transmit calls request 0x400 transfer units.
+- The transmit routine stores the original source pointer at handle offset
+  `0x78`. At `0x0807faa2`–`0x0807fab0` it passes that source and the selected
+  SAI data-register address (instance + `0x1c`) to DMA starter `0x080799e8`.
+  It subsequently enables the SAI DMA request. There is no additional sample
+  mixer in this examined transmit wrapper: the diagnostic fields enter the
+  retained DMA transport directly.
+
+This establishes a source-level route from independent packed fields into SAI1 A,
+with Out2 on SAI2 A. It does **not** establish converter model/slot configuration,
+PCB wiring or independent analog headphone amplification. Complete DMA interrupt,
+cache and register-configuration behavior has not been simulated or hardware-tested.
+Only the physical test can prove these fields independently reach PHONES.
 
 ## Install and recover
 
