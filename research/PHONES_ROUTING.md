@@ -1,4 +1,4 @@
-# Experimental Phones routing — JBOX 2P
+# Experimental Phones routing — JBOX 2P2
 
 This branch continues after the owner explicitly requested proceeding on the
 assumption that independent PHONES audio works, without an audio test. The owner
@@ -14,17 +14,17 @@ pushed, or distributed. Outputs are for the owner's local build/install only.
 ## Use
 
 - Each pad's existing Output selector retains values 0–8 and their labels, then
-  adds **Phones stereo**, **Phones L**, **Phones R** as values 9–11.
+  adds **Out4**, **Out4L**, **Out4R** as values 9–11.
 - On **Tools**, select **Headphone**, then press **INFO**. The Phones page has
   the existing Headphone volume and a **Phones** mode selector.
 - **Monitor Mix** (default) retains the original Out1–3 headphone monitor sum,
   adding any Phones-assigned pads/returns. Old presets keep normal monitoring.
 - **Independent** removes that monitor sum: PHONES contains only material
-  assigned to Phones stereo/L/R. Choose this mode for the fourth output.
+  assigned to Out4/Out4L/Out4R. Choose this mode for the fourth output.
 - FX1/FX2 **OUT → Output** also appends the same three destinations. These route
   the shared wet returns; they do not instantiate independent effects per output.
-- Mono samples use unity signal on their selected side(s). Stereo on Phones stereo
-  preserves L/R; Phones L/R folds stereo as `(L + R) / 2` to the selected side.
+- Mono samples use unity signal on their selected side(s). Stereo on Out4
+  preserves L/R; Out4L/Out4R folds stereo as `(L + R) / 2` to the selected side.
   Opposite-polarity stereo material can cancel when folded, as with other mono sums.
 - Headphone volume remains the overall Phones control. The new signal takes the
   same engine Phones gain and the subsequent stock per-channel gain as the stock
@@ -83,7 +83,7 @@ does not make the new output enum values safe for their engines.
 | Sample/Multisample output | Private stereo/L/R bus lookup | Unverified |
 | Clip/Slicer output | Same lookup, second pad process | Unverified |
 | Per-pad level/pan/insert | Existing processing preserved before bus mix | Unverified with new route |
-| FX1/FX2 wet return | Phones stereo/L/R added | Unverified |
+| FX1/FX2 wet return | Out4/Out4L/Out4R added | Unverified |
 | Headphone gain | Engine gain plus retained outer gain stage | Unverified physically |
 | Normal headphone monitor | Default Monitor Mix retains stock sum | Unverified in this build |
 | Out1 Master FX/compressor/clipper | Remain Out1-only; Phones bypasses them | No new hardware test |
@@ -111,7 +111,7 @@ python3 patch.py solo slice duck chord cond filter cpu od comp seqfix fx2 munchi
 Copy the generated image from `out/solo+slice+duck+chord+cond+filter+cpu+od+comp+seqfix+fx2+munchi+master+fault+cave/BLACKBOX.bin`
 and `out/BBEXTRA.BIN` to the card root. The owner's convenience copy is in ignored
 `out/phones-routing/`, with a local SHA-256 manifest. Both files belong together.
-Version is **JBOX 2P**, to distinguish this unverified branch from Joe's release.
+Version is **JBOX 2P2**, to distinguish this unverified branch from Joe's release.
 The bank-2 payload currently matches the owner's supplied JOEBOX 2 BBEXTRA.BIN
 byte-for-byte; it is nevertheless included in the local install pair.
 
@@ -129,7 +129,7 @@ the owner's matched JOEBOX 2 pair. Use original preset backups on downgrade.
 Start with the existing diagnostic test recordings if possible. For this build,
 use a new preset, sends off, and choose Independent mode. Route distinct stereo
 loops to Out1–3 and a fourth loop to Phones. Record all eight physical channels,
-then test Phones L and Phones R separately. Mute/stop each pad, vary Headphone
+then test Out4L and Out4R separately. Mute/stop each pad, vary Headphone
 and Out1–3 volumes, enable wet returns one at a time, save/reload and power cycle.
 Check that only the intended channels change and no audio leaks to the line outs.
 Restore Monitor Mix and confirm ordinary monitoring. Record the actual crosstalk,
@@ -177,3 +177,12 @@ Load these on four pads, route to their named destinations, select Independent,
 and loop/trigger all four. PHONES should play 1500/3000 Hz, without the other
 six frequencies. All new routing audio, physical isolation, UI rendering, real
 CPU load and recovery of this build remain **hardware-unverified**.
+
+## Out4 label revision
+
+At the owner's request, the current display names are **Out4**, **Out4L** and
+**Out4R**, on both pad Output and FX-return selectors. All refer to the physical
+PHONES jack. Version is **JBOX 2P2**; saved values, routing, gains and monitor
+behavior are unchanged. The eight focused routing cases and FX-return suite pass
+for this revision. Image hashes and sizes in the preceding validation section
+refer to the earlier JBOX 2P build; use the local build manifest for this revision.

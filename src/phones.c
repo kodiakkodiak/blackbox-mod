@@ -56,7 +56,7 @@ void phones_output_register(void *table, int param, const char *label, const cha
     (void)old;
     (void)count;
     static const char *const names[] = {"Out1", "Out2", "Out3", "Out1L", "Out1R", "Out2L", "Out2R", "Out3L", "Out3R",
-                                       "Phones stereo", "Phones L", "Phones R"};
+                                       "Out4", "Out4L", "Out4R"};
     fw_reg(table, param, label, names, 12, xml);
 }
 /* XML 10/11 are legacy Out1+FX shortcuts. New XML uses 12..14; runtime/UI

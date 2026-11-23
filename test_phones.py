@@ -147,7 +147,7 @@ class PhonesTests(unittest.TestCase):
         e.stub(0x0808c0d8,reg)
         e.w32(STACK,9);e.w32(STACK+4,0x080cc1cc)
         e.call('phones_output_register',0,0x95,0x080cc1cc,0)
-        self.assertEqual(calls[0],(0x95,['Out1','Out2','Out3','Out1L','Out1R','Out2L','Out2R','Out3L','Out3R','Phones stereo','Phones L','Phones R'],'outputbus'))
+        self.assertEqual(calls[0],(0x95,['Out1','Out2','Out3','Out1L','Out1R','Out2L','Out2R','Out3L','Out3R','Out4','Out4L','Out4R'],'outputbus'))
         e.call('phones_register',0)
         self.assertEqual(calls[1],(0x14b,['Monitor Mix','Independent'],'phonesmode'))
         defaults=[];e.stub(0x08093ef6,lambda:defaults.append((e.arg(1),e.arg(2))))

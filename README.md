@@ -2,7 +2,7 @@
 
 An unofficial feature mod for the **original 1010music Blackbox** (not the Blackbox 2), built on stock firmware 3.1.9.
 
-This fork’s `phones-routing` branch adds experimental **Phones stereo / Phones L / Phones R** routing and a monitor-mode control, displayed as **JBOX 2P**. Physical PHONES independence remains unverified; development continued at the owner’s request on that assumption. See [routing, test and recovery notes](research/PHONES_ROUTING.md). The browser patcher and upstream release instructions below still describe Joe’s original release.
+This fork’s `phones-routing` branch adds experimental **Out4 / Out4L / Out4R** routing and a monitor-mode control, displayed as **JBOX 2P2**. Physical PHONES independence remains unverified; development continued at the owner’s request on that assumption. See [routing, test and recovery notes](research/PHONES_ROUTING.md). The browser patcher and upstream release instructions below still describe Joe’s original release.
 
 > **Not affiliated with, endorsed by, or supported by 1010music.** This repository does not contain 1010music's
 > firmware. You supply your own copy, downloaded from 1010music, and patch it yourself. Use at your own risk: this is

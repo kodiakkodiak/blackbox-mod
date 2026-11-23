@@ -5,7 +5,7 @@
  * to FX1 (delay) and FX2 (reverb), and the wet comes back to Out 1 at a fixed level. Each effect now has
  *   Level    -12 .. +12 dB (param 0x149, TYPE_DB, milli-dB), default +4 dB (picked in testing)
  *   Low Cut  Off, 30 .. 600 Hz, a 12 dB/oct high-pass on the wet only (param 0x14a), default Off
- *   Output   Out 1 / Out 2 / Out 3 / Phones stereo / Phones L / Phones R: return destination (param 0x148, 3.3.x), default Out 1 = stock.
+ *   Output   Out 1 / Out 2 / Out 3 / Out4 / Out4L / Out4R: return destination (param 0x148, 3.3.x), default Out 1 = stock.
  *            The engine adds the delay's bus 10 and the reverb's bus 11 into Out 1's bus 0 (FUN_08053164 @0x08053506 /
  *            0x08053516, then the Master FX / compressor / clipper run on bus 0 only, then bus 0 / 1 / 2 go to
  *            Out 1 / 2 / 3 and all of them to Phones). fxret_mix adds it to bus 1 or 2 instead: such a return skips the
@@ -103,7 +103,7 @@ static void start(void)
 }
 
 /* registration: called once, from munchi_register (the delay) */
-static const char *const dest_names[6] = {"Out 1", "Out 2", "Out 3", "Phones stereo", "Phones L", "Phones R"};
+static const char *const dest_names[6] = {"Out 1", "Out 2", "Out 3", "Out4", "Out4L", "Out4R"};
 
 void fxout_register(void *table)
 {

@@ -12,7 +12,7 @@ out = args.output
 out.mkdir(parents=True, exist_ok=True)
 pairs = [('Out1', (375, 750)), ('Out2', (1125, 2250)), ('Out3', (2625, 3375))]
 if args.phones:
-    pairs.append(('Phones', (1500, 3000)))
+    pairs.append(('Out4', (1500, 3000)))
 for bus, pair in pairs:
     data = bytearray()
     for i in range(48000):
