@@ -91,7 +91,7 @@ def f32(x):
 from unicorn import UC_HOOK_CODE
 PRISM, CTX = 0xC0000000, 0x24058000
 PMEM, PCHECK = 0x38800F70, 0x38800F74
-e.uc.mem_map(0xC0000000, 0x96000)               # the master block (0x94910) and a little over
+e.uc.mem_map(0xC0000000, 0x9C000)               # the master block (0x9AA20) and a little over
 FX = [["Drive", "Sweet", "Fuzz", "Snarl", "Bloom"], ["Doubler", "Vibrato", "Phaser", "Tremolo", "Pitch"],
       ["PingPong", "Tape", "Hall", "Scatter", "Reverse"], ["Filter", "Clamp", "Cassette", "Glitch", "Static"]]
 
@@ -134,9 +134,9 @@ check("every xml name is unique", len({l[3] for l in lists} | {n[4] for n in num
 e.stub(0x08093EF6, lambda: added.append((e.arg(1), e.arg(2))))
 e.call("comp_defaults", 0x24072000, 0xB4, 1)
 d = dict(added)
-check("defaults: Sweet 30 %, Doubler 0, Tape 0, Cassette 25 %, Tilt flat, Time 1/8, Mix 100 %; 41 global entries added in all (TAPESCAM's eleven, Pre-roll, Groove, Theme, then the clipper's three)",
-      [d[i] for i in range(0x19D, 0x1A9)] == [1, 0, 1, 2, 300, 0, 0, 250, 500, 300, 3, 1000] and len(added) == 41 and len(d) == 41 and d.get(0x144) == 0 and d.get(0x145) == 0, added)
-check("stock has 41 global settings, ours add 40: 81 of the store's 96", 41 + len(added) - 1 == 81 and e.uc.mem_read(0x08094820, 2) == bytes.fromhex("6021"))
+check("defaults: Sweet 30 %, Doubler 0, Tape 0, Cassette 25 %, Tilt flat, Time 1/8, Mix 100 %; 42 global entries added in all (including Phones mode)",
+      [d[i] for i in range(0x19D, 0x1A9)] == [1, 0, 1, 2, 300, 0, 0, 250, 500, 300, 3, 1000] and len(added) == 42 and len(d) == 42 and d.get(0x144) == 0 and d.get(0x145) == 0, added)
+check("stock has 41 global settings, ours add 41: 82 of the store's 96", 41 + len(added) - 1 == 82 and e.uc.mem_read(0x08094820, 2) == bytes.fromhex("6021"))
 
 # --- the page
 LIST, CELL = 0x24074000, 0x24075000
@@ -180,8 +180,8 @@ check("the meter is up before the boot hook runs here (the emulator starts that 
 e.call("master_alloc", 0x24076000, 192000)
 check("master_alloc is the once-a-boot hook: it wipes the meter's state, and the bank 2 verdict with it (cpu_boot)", e.r32(0x2405FFD0) == 0)
 e.meter_up()                                      # ...and the audio task's first wake sets it up again, before any block
-check("master_alloc: the delay's line is allocated as before, then 0x94910 bytes (Prism's 0x56800 + 0x10 for stretch.c's pointer + 0x1000 for the LFOs + 0x6000 for the USB audio ring + 0x4000 for the S950 filters + 0x22000 for the pad inserts + 0x100 for the clipper + 0x10000 for the EQ screen's RTA + 0x1000 for the filter's switch crossfade), pointer + check word stored",
-      allocs[:2] == [("line", 0x24076000, 192000), ("perm", 0x94910)] and e.r32(PMEM) & 0xFFFFFFFF == PRISM and e.r32(PCHECK) & 0xFFFFFFFF == PRISM ^ 0x5052534D, (allocs, hex(e.r32(PMEM)), hex(e.r32(PCHECK))))
+check("master_alloc: the delay's line is allocated as before, then 0x9AA20 bytes (Prism's 0x56800 + 0x10 for stretch.c's pointer + 0x1000 for the LFOs + 0x6000 for the USB audio ring + 0x4000 for the S950 filters + 0x22000 for the pad inserts + 0x100 for the clipper + 0x10000 for the EQ screen's RTA + 0x1000 for the filter's switch crossfade + 0x6110 for Phones and alignment), pointer + check word stored",
+      allocs[:2] == [("line", 0x24076000, 192000), ("perm", 0x9AA20)] and e.r32(PMEM) & 0xFFFFFFFF == PRISM and e.r32(PCHECK) & 0xFFFFFFFF == PRISM ^ 0x5052534D, (allocs, hex(e.r32(PMEM)), hex(e.r32(PCHECK))))
 check("...then stretch.c's own area (a refusal here only turns the Stretch models off), its address in the block's last word",
       len(allocs) == 3 and allocs[2][0] == "perm" and allocs[2][1] >= 0x40000 and e.r32(PRISM + 0x94900) == 0, allocs)
 check("the patched call in the delay constructor goes to master_alloc", e.uc.mem_read(0x0805462A, 4) != bytes.fromhex("16f029fa") and e.sym["master_alloc"] != 0)

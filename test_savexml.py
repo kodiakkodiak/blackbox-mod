@@ -311,6 +311,44 @@ check("the five call sites of stock's preset writer now call savexml, and nothin
 check("nothing in the image calls FUN_08096754 any more", calls_to(img, STOCK_WRITER) == [],
       [hex(a) for a in calls_to(img, STOCK_WRITER)])
 
+# Phones routing: use the actual registry, preset loader and writer, then reload.
+import xml.etree.ElementTree as ET
+routing = ['<document><session version="2">']
+for route in range(12):
+    routing.append(f'<cell row="{route // 4}" column="{route % 4}" layer="0" filename="Phones-test-{route}.wav" type="sample"><params outputbus="{route if route < 9 else route + 3}"/></cell>')
+for col,legacy in enumerate((10,11)):
+    routing.append(f'<cell row="3" column="{col}" layer="0" filename="Legacy-test.wav" type="sample"><params outputbus="{legacy}"/></cell>')
+for row,kind in enumerate(("delay", "reverb")):
+    routing.append(f'<cell row="{row}" layer="3" type="{kind}"><params fxoutdest="{3+row}"/></cell>')
+routing.append('<cell type="song"><params phonesmode="1"/></cell></session></document>')
+rr = Rig(); rr.boot()
+check("Phones preset loads", rr.load(''.join(routing).encode()) == 1)
+saved = rr.save(rr.e.sym["savexml"])
+def routes_in(xml):
+    doc = ET.fromstring(xml)
+    pads = []
+    effects = []
+    for cell in doc.iter('cell'):
+        par = cell.find('params')
+        if par is None: continue
+        if cell.get('layer') == '0' and 'outputbus' in par.attrib:
+            row, col = int(cell.get('row', '0')), int(cell.get('column', '0'))
+            if col < 4 and row * 4 + col < 12:
+                pads.append(int(par.get('outputbus')))
+        if cell.get('layer') == '3' and cell.get('row') in ('0', '1'):
+            effects.append(int(par.get('fxoutdest', '0')))
+    return sorted(pads), effects
+check("existing 0..8 and new XML 12..14 pad values, plus Phones FX returns, survive save",
+      saved[0] == 1 and routes_in(saved[1]) == (list(range(9)) + [12,13,14], [3,4]), routes_in(saved[1]))
+legacy = [c.find('params') for c in ET.fromstring(saved[1]).iter('cell') if c.get('layer') == '0' and c.get('row') == '3' and c.get('column') in ('0','1')]
+check("legacy XML 10/11 retain stock Out1 plus full FX1/FX2 send conversions",
+      len(legacy) == 2 and legacy[0].get('outputbus') == legacy[1].get('outputbus') == '0'
+      and legacy[0].get('fx1send') == '1000' and legacy[1].get('fx2send') == '1000')
+rr2 = Rig(); rr2.boot()
+check("Phones preset reloads", rr2.load(saved[1]) == 1)
+saved2 = rr2.save(rr2.e.sym["savexml"])
+check("Phones routing unchanged after load-save-load-save", routes_in(saved2[1]) == routes_in(saved[1]), routes_in(saved2[1]))
+
 if PRESET:
     xml = open(PRESET, "rb").read()
 else:                                                   # no real preset given: the synthetic heavy project stands in

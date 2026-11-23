@@ -28,6 +28,7 @@
  * master_list supplies the page for cell 0x40; values go through the stock global path.
  */
 #include <stdint.h>
+#include "phones.h"
 #include "vhs.h"
 
 #pragma GCC optimize("Os", "no-tree-loop-distribute-patterns")
@@ -138,7 +139,7 @@ int b2_live(void);               /* cpu.c: is bank 2, where prism_block lives, t
 #define PRISM_MEM   (*(volatile uint32_t *)0x38800f70u)
 #define PRISM_CHECK (*(volatile uint32_t *)0x38800f74u)
 #define PRISM_KEY   0x5052534du
-#define EXTRA_BYTES 0x3e110u      /* behind Prism's: (+ 0x10 at 0x3e100: stretch.c's pointer word, STR_PTR_OFFSET) lfo.c's state (0x1000), usbdev.c's audio ring (0x6000), filter.c's S950 bank (0x4000), insert.c's bank (0x22000), comp.c's clipper (0x100), the EQ screen's RTA (0x10000, rta.h), the filter's switch crossfade (0x1000, filter.h) */
+#define EXTRA_BYTES 0x44220u      /* behind Prism's: (+ 0x10 at 0x3e100: stretch.c's pointer word, STR_PTR_OFFSET) lfo.c's state (0x1000), usbdev.c's audio ring (0x6000), filter.c's S950 bank (0x4000), insert.c's bank (0x22000), comp.c's clipper (0x100), the EQ screen's RTA (0x10000, rta.h), the filter's switch crossfade (0x1000, filter.h), Phones buses (0x6100 at +0x3e120) */
 
 /* which master page the knob screen shows, and whether it is showing one (backup SRAM, next to munchi's words) */
 struct master_ui {
@@ -146,7 +147,7 @@ struct master_ui {
     uint16_t pad;                /* PAGE_INS: the pad cell whose insert the knob screen is showing */
 };
 #define UI ((volatile struct master_ui *)0x38800b1cu)
-enum { PAGE_COMP, PAGE_MFX, PAGE_MFX2, PAGE_INS };
+enum { PAGE_COMP, PAGE_MFX, PAGE_MFX2, PAGE_INS, PAGE_PHONES };
 
 /* the per-pad insert (insert.c): its row on the pad's Conf tab and its knob page */
 #define P_INS          0x1b6
@@ -215,6 +216,7 @@ void master_register(void *table)
     lfo_register(table);
     insert_register(table);
     stretch_register(table);
+    phones_register(table);
 }
 
 void master_defaults(void *store)
@@ -245,6 +247,7 @@ void master_defaults(void *store)
     static const uint16_t ts_def[11] = {700, 0, 0, 0, 0, 500, 1000, 0, 0, 0, 1};
     for (int k = 0; k < 11; k++)
         fw_store_add(store, ts_id[k], ts_def[k]);
+    phones_defaults(store);
 }
 
 /* ---- knob pages ---- */
@@ -280,6 +283,11 @@ int master_list(uint8_t *app, uint8_t *cell, void *list, int page)
         return fw_build(app, cell, list, page);
     }
     fw_list_clear(list);
+    if (UI->page == PAGE_PHONES) {
+        fw_list_add(list, 0xba, fw_setting(SETTINGS, 0xba));
+        fw_list_add(list, P_PHONES_MODE, fw_setting(SETTINGS, P_PHONES_MODE));
+        return 1;
+    }
     if (UI->page != PAGE_COMP && fw_setting(SETTINGS, P_MFX) == MFX_TAPE) {
         static const uint16_t page1[] = {P_TS_INPUT, P_TS_DRIVE, P_TS_COLOR, P_TS_WOBBLE, P_TS_NOISE, P_TS_TONE, P_TS_OUTPUT, 0};
         static const uint16_t page2[] = {P_TS_COMP, P_TS_AGE, P_TS_SPEED, P_TS_WIDEN, 0};
@@ -309,6 +317,8 @@ const char *master_title(void)
         return 0;
     if (UI->page == PAGE_COMP)
         return "Comp";
+    if (UI->page == PAGE_PHONES)
+        return "Phones";
     int type = fw_setting(SETTINGS, P_MFX);                  /* 8 characters at most: longer wraps (cpu.c) */
     if (type == MFX_TAPE)
         return UI->page == PAGE_MFX2 ? "Tape 2" : "Tape 1";
@@ -372,6 +382,8 @@ void master_tools_info(uint8_t *app, int screen, int a, int b)
         open_page(app, PAGE_COMP);
     else if (row == P_MFX)
         open_page(app, PAGE_MFX);
+    else if (row == 0xba)
+        open_page(app, PAGE_PHONES);
     else
         fw_set_screen(app, screen, a, b);
 }
@@ -497,6 +509,7 @@ void master_alloc(int *line, int floats)
         *(volatile uint32_t *)(mem + PRISM_BYTES + 0x2d000u) = 0;   /* comp.c's clipper */
         *(volatile uint32_t *)(mem + PRISM_BYTES + 0x2d100u) = 0;   /* rta_dsp.c */
     }
+    phones_boot(mem ? (uint8_t *)mem : 0);
     stretch_alloc(mem ? (uint8_t *)mem : 0);                 /* stretch.c: its own allocation, after this one */
 }
 

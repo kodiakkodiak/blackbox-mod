@@ -14,7 +14,7 @@ def hook(at, stock, name):
 
 PATCHES = [
     # engine: per-block envelope update in front of the engine process
-    hook(0x0804CE74, 0x08053164, "duck_block"),
+    hook(0x0804CE74, 0x08053164, "phones_engine"),
     # engine: every voice-start call, pad class A (8 sites) and class B (3 sites)
     *[hook(a, 0x08058548, "duck_voice_start_a") for a in
       (0x0805999C, 0x08059B3E, 0x0805A6F6, 0x0805A75C, 0x0805A800, 0x0805A910, 0x0805B6E4, 0x0805B9BA)],

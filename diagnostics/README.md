@@ -203,3 +203,8 @@ are output insert effects, independent send levels, or both before implementing.
 The existing two shared send effects do not establish eight independent effects
 engines. CPU budget, stereo/mono pairing, wet-return feedback, master gain order
 and saved state need investigation after the physical gate passes.
+
+Later owner clarification: prioritize independent delay and reverb per pad over
+per-output effects. The owner also explicitly authorized continuing Phones routing
+on an assumption of independence; see `research/PHONES_ROUTING.md`. This does not
+change the diagnostic’s unverified audio status.

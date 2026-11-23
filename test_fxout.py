@@ -75,7 +75,7 @@ e.call("fxout_register", 0x30003000)
 check("registered: Level 0x149 dB (TYPE_DB 7) -12 .. +12 dB, Low Cut 0x14a Off / 30 .. 600 Hz, own xml names",
       reg == [("num", 0x149, 7, "Level:", -12000, 12000, "fxoutlevel"),
               ("list", 0x14A, "Low Cut:", ["Off", "30 Hz", "60 Hz", "100 Hz", "150 Hz", "200 Hz", "300 Hz", "400 Hz", "600 Hz"], "fxoutlowcut"),
-              ("list", 0x148, "Output:", ["Out 1", "Out 2", "Out 3"], "fxoutdest")], reg)
+              ("list", 0x148, "Output:", ["Out 1", "Out 2", "Out 3", "Phones stereo", "Phones L", "Phones R"], "fxoutdest")], reg)
 added = []
 e.stub(0x08093EF6, lambda: added.append((e.arg(1), e.arg(2))))
 e.call("fxout_defaults", STORE)

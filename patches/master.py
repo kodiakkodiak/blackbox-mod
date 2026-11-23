@@ -20,6 +20,11 @@ def bw(at, target):
 SET_SCREEN = 0x0809EAEC
 
 PATCHES = [
+    # Experimental Phones: pad-only lookups avoid stock buses 9..11 (record/FX).
+    hook(0x0808D12E, 0x0808C0D8, "phones_output_register"),
+    hook(0x08095A8A, 0x08093ECC, "phones_output_load"),
+    hook(0x080596D2, 0x0805F37C, "phones_pad_bus"),
+    hook(0x08067FC6, 0x0805F37C, "phones_pad_bus"),
     # master EQ screen: the graph's draw (vtable 0x080f065c +4) draws the RTA first, then stock's curve (src/rta.c)
     (0x080F0660, word(0x080AA13D), word(sym["rta_graph_draw"] | 1)),
     # engine: the compressor stage runs every block (was: only with Compressor on), so Master FX works with it Off

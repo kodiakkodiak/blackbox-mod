@@ -220,7 +220,8 @@ static int entry(const uint8_t *cell, int i, struct entry *e)
     if (!e->name)
         return 0;
     e->text = 0;
-    e->value = v;
+    /* Preserve stock XML 10/11 (legacy Out1+FX); Phones menu 9..11 saves as 12..14. */
+    e->value = id == 0x95 && v >= 9 && v <= 11 ? v + 3 : v;
     if (id == 0xf8 || id == 0xf9) {
         e->text = fw_enum_name((id == 0xf8 ? ENUM_F8 : ENUM_F9)[v]);
         if (!e->text)
