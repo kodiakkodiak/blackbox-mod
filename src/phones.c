@@ -32,7 +32,7 @@ typedef void (*add_fn)(void *, int, int);
 #define fw_add ((add_fn)FN(0x08093ef6))
 struct buffer { int cap, len; float *l, *r; uint8_t silent, stereo; uint16_t pad; };
 struct state { uint32_t magic; struct buffer bus[3]; float samples[3][2][MAX_FRAMES]; };
-_Static_assert(sizeof(struct state) <= PHONES_BYTES, "Phones memory exceeds reserved region");
+_Static_assert(sizeof(struct state) <= 0x6040u, "Phones memory exceeds reserved region");
 _Static_assert(sizeof(struct buffer) == 20, "stock buffer ABI");
 static struct state *state(void)
 {
@@ -41,8 +41,12 @@ static struct state *state(void)
 }
 void phones_boot(uint8_t *master)
 {
-    if (master)
+    if (master) {
         ((struct state *)(master + PHONES_OFFSET))->magic = 0;
+#ifdef GRID_LED_DIAG
+        *(uint32_t *)(master + GRID_LED_STATE_OFFSET) = 0;
+#endif
+    }
 }
 void phones_register(void *table)
 {

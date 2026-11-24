@@ -34,6 +34,8 @@ CFLAGS="-mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -Os -ffreestandi
 [ "${RELEASE:-0}" = 1 ] && CFLAGS="$CFLAGS -DPUBLIC_BUILD=1"
 # FAULT_SHOW=1: a crash or a watchdog reset draws its record on the screen and holds, instead of resetting (fault.c)
 [ "${FAULT_SHOW:-0}" = 1 ] && CFLAGS="$CFLAGS -DFAULT_SHOW=1"
+# GRID_LED_DIAG=1: append low-priority channel-16 LED heartbeat to USB-A only.
+[ "${GRID_LED_DIAG:-0}" = 1 ] && CFLAGS="$CFLAGS -DGRID_LED_DIAG=1"
 # USB_DIAG=1: TOOLS shows the USB device's state and the HSI48 error instead of the load (usbdev.c)
 [ "${USB_DIAG:-0}" = 1 ] && CFLAGS="$CFLAGS -DUSB_DIAG=1"
 # SLICE_DIAG=1: per-trigger rows for clip / slicer voices in SDRAM, read with measure/slice_diag.py (filter.c). Debug only.

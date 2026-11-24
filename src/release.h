@@ -9,7 +9,11 @@
 #ifndef RELEASE_H
 #define RELEASE_H
 
+#ifdef GRID_LED_DIAG
+#define RELEASE_NAME "JBOX G1"
+#else
 #define RELEASE_NAME "JBOX 2P2"
+#endif
 _Static_assert(sizeof RELEASE_NAME - 1 <= 8, "a release name is eight characters at most: longer wraps on a knob page");
 
 #endif

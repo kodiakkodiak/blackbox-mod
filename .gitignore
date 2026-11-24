@@ -11,3 +11,9 @@ ghidra/*.rep/
 ghidra/*.gpr
 ghidra/out_*.c
 *.dylib
+.venv-grid/
+controller/opengrid/.pio/
+# Owner-local FREEPOET keypad dependency; not redistributed by this fork.
+controller/opengrid/src/keypad.cpp
+controller/opengrid/src/keypad.h
+*.uf2

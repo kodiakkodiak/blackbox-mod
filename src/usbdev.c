@@ -766,7 +766,14 @@ int usbdev_midi_out(void *manager, uint8_t *queue, uint8_t *out, unsigned max, u
             }
         }
     }
-    return fw_midi_pack(manager, queue, out, max, len);
+    int result = fw_midi_pack(manager, queue, out, max, len);
+#ifdef GRID_LED_DIAG
+    /* Host-bound buffer only: never inject feedback into the shared music queue
+       or the power-port MIDI mirror. Stock gets the entire capacity first. */
+    int grid_led_append(uint8_t *dst, unsigned capacity, unsigned *bytes);
+    if (grid_led_append(out, max, len)) return 1;
+#endif
+    return result;
 }
 
 /* Once per audio block, from cpu_wait. */

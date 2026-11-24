@@ -49,5 +49,17 @@ existing play/menu modes. The owner's disabled center columns leave 14 active
 columns, so paging/layout must explicitly respect that gap. Bidirectional step
 editing can follow after display synchronization works.
 
-Status: feasibility/source investigation only. No grid-feedback implementation,
-USB enumeration test, hardware handshake or controller flash has been performed.
+## Single-LED diagnostic implementation
+
+Branch `grid-led-diagnostic` implements the opt-in JBOX G1 heartbeat in
+`src/grid_led.c` and appends it after stock music packing in `src/usbdev.c`.
+The controller source and verification steps are in
+`controller/opengrid/README.md`. Software checks exercise the actual ARM packer,
+packet bounds/music priority, power-port isolation, and the recovered controller
+loop including timeout/menu/key handling. Both target builds compile.
+
+Owner-reported hardware evidence: changing the wall adapter restored touchscreen
+operation while the grid was connected; normal controller operation was reported.
+This does not verify outbound LED delivery. No G1 flash, direct LED handshake,
+sequence visualization, or physical Out4 separation has been verified. Independent
+per-pad delay/reverb remains future work.
